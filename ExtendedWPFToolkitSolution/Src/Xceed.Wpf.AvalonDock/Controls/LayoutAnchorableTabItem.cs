@@ -34,6 +34,7 @@ namespace Xceed.Wpf.AvalonDock.Controls
 
     private bool _isMouseDown = false;
     private static LayoutAnchorableTabItem _draggingItem = null;
+    private Point _previousMousePositionParent;
     private static bool _cancelMouseLeave = false;
 
     #endregion
@@ -150,19 +151,25 @@ namespace Xceed.Wpf.AvalonDock.Controls
         _isMouseDown = false;
         _draggingItem = null;
       }
-      else
+      else if (Parent is IInputElement && e.GetPosition(Parent as IInputElement)!=_previousMousePositionParent)
       {
         _cancelMouseLeave = false;
+      }
+
+      if (Parent is IInputElement)
+      {
+        _previousMousePositionParent = e.GetPosition(Parent as IInputElement);
       }
     }
 
     protected override void OnMouseLeftButtonUp( System.Windows.Input.MouseButtonEventArgs e )
     {
-      _isMouseDown = false;
-
       base.OnMouseLeftButtonUp( e );
-
-      Model.IsActive = true;
+      if (_isMouseDown)
+      {
+        Model.IsActive = true;
+        _isMouseDown = false;
+      }
     }
 
     protected override void OnMouseLeave( System.Windows.Input.MouseEventArgs e )
@@ -177,7 +184,7 @@ namespace Xceed.Wpf.AvalonDock.Controls
       }
 
       _isMouseDown = false;
-      _cancelMouseLeave = false;
+      _cancelMouseLeave =  false;
     }
 
     protected override void OnMouseEnter( MouseEventArgs e )
@@ -224,7 +231,7 @@ namespace Xceed.Wpf.AvalonDock.Controls
 
     internal static void CancelMouseLeave()
     {
-      _cancelMouseLeave = true;
+      _cancelMouseLeave =  true;
     }
   }
 }
